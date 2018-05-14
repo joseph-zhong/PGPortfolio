@@ -83,6 +83,11 @@ celerybeat-schedule
 .env
 
 # virtualenv
+bin/
+include/
+local/
+pip-selfcheck.json
+share/
 .venv
 venv/
 ENV/
