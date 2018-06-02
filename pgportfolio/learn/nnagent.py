@@ -7,6 +7,14 @@ import pgportfolio.learn.network as network
 
 class NNAgent:
     def __init__(self, config, restore_dir=None, device="cpu"):
+        ######
+        self.startE = 1 # Set this to 0 to get rid of random action
+        self.endE = 0.1
+        self.epsilon_greedy_steps = 10000
+        self.stepDrop = (self.startE - self.endE)/self.epsilon_greedy_steps
+        self.e = self.startE
+        ######
+        
         self.__config = config
         self.__coin_number = config["input"]["coin_number"]
         self.__net = network.CNN(config["input"]["feature_number"],
@@ -169,7 +177,16 @@ class NNAgent:
                                                     self.__y: y,
                                                     self.__net.previous_w: last_w,
                                                     self.__net.input_num: x.shape[0]})
-        setw(results[-1][:, 1:])
+        
+        ############ Epsilon Greedy ###############
+        num_samples = last_w.shape[0]
+        if np.random.rand(1) < self.e:
+            random_w = np.repeat(np.random.dirichlet(np.ones(last_w.shape[1]),size=1), num_samples, axis=0)
+            setw(random_w) # Random probability distribution
+        else:
+            setw(results[-1][:, 1:])
+        if self.e > self.endE:
+            self.e -= self.stepDrop
         return results[:-1]
 
     # save the variables path including file name
